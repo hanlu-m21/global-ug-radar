@@ -1,13 +1,13 @@
 ---
 name: global-ug-radar
-description: Country-first native Android user-growth competitor research for the United States, Brazil, Japan, and Korea. Use when Codex needs to choose a verified country environment, provision or start a research-grade Android Google Play emulator, verify runtime locale/MCC/SIM/timezone/geolocation/network/Google Play/app content country gates, prompt for manual Google Play and app login, install selected native apps, capture screenshots/hierarchy/OCR evidence, discover UG pages using country-language invite/reward/task/cashback/sign-in keyword signals, compare baseline changes, and prepare Chinese Feishu message/Doc outputs.
+description: Token-efficient, country-first native Android user-growth competitor research for the United States, Brazil, Japan, and Korea. Use when Codex needs to verify country emulator/Google Play/app gates, research an already-open Android app, install configured native apps when needed, capture screenshots/hierarchy/OCR evidence, summarize UG candidates with scripts, compare baseline changes, and prepare Chinese Feishu message/Doc outputs.
 ---
 
 # Global UG Radar
 
-## Core Rule
+## Core Contract
 
-Run native-app UG research only after the selected country environment is verified.
+Run native-app UG research only after the selected country environment is verified. Optimize tokens by summarizing evidence before analysis; do not reduce the evidence captured.
 
 Supported countries are exactly:
 
@@ -18,22 +18,32 @@ Supported countries are exactly:
 
 Do not offer Europe in this skill. If the user asks for Europe, explain that this skill requires a specific country profile first.
 
-## Architecture
+## Operating Modes
 
-Keep the workflow stable by using progressive disclosure:
+Choose the narrowest mode that matches the user's request:
 
-- `SKILL.md`: country-first workflow and hard gates only.
+1. `research-current-app` - default when the target app is already open on the test device.
+2. `setup-and-install` - use when the country emulator, Google Play state, or target app is not ready.
+3. `deliver` - use when evidence already exists and the user asks for Feishu/Doc output.
+
+## Load Only When Needed
+
+Keep `SKILL.md` as the router. Load references only for the active stage:
+
 - `config/countries.json`: country profiles, locale, timezone, AVD name, network country, and default apps.
 - `config/apps.example.json`: supported-country app candidates.
 - `config/ug-signals.json`: country-language UG keywords, safe entry labels, and stop phrases.
-- `references/country-environment.md`: how to apply and verify country-specific emulator state.
-- `references/safety-boundaries.md`: actions that require human handling.
-- `references/smart-discovery.md`: native app route discovery.
-- `references/output-template.md`: Chinese Feishu output contract.
-- `assets/iccprofile_android_emulator_base.xml`: emulator ICC template used to generate country SIM profiles.
+- `references/country-environment.md`: read only for emulator provisioning or country verification failures.
+- `references/safety-boundaries.md`: read only when an action may cross login, payment, invite, identity, or wallet boundaries.
+- `references/smart-discovery.md`: read only for manual route exploration or unclear UG candidates.
+- `references/output-template.md`: read only immediately before drafting or writing Chinese Feishu output.
 - `scripts/doctor.py`: local tooling, storage, and selected-country readiness.
 - `scripts/provision_country_avd.py`: create/start research-grade Google Play AVDs and country ICC profiles.
 - `scripts/verify_country_env.py`: hard country-environment validation gate.
+- `scripts/capture_current_app.py`: capture the foreground Android app and write a compact `evidence_summary.json` from screenshot, hierarchy, package, and country-signal matches.
+- `scripts/prepare_run.py`: create a prepared run shell when no capture manifest exists.
+- `scripts/render_feishu_table.py`: validate structured findings and render the fixed 5-column Feishu table XML.
+- `scripts/deliver.py`: create local Feishu payloads; direct Feishu writes still require explicit user destination confirmation.
 
 ## Hard Boundaries
 
@@ -47,7 +57,36 @@ Keep the workflow stable by using progressive disclosure:
 - Do not accept language-only configuration as country proof. Runtime locale, SIM/MCC, network egress, Google Play content, and app content must be checked.
 - Store runs, screenshots, baselines, logs, and secrets under `~/.global-ug-radar/` or the user-provided state directory, never inside the skill folder.
 
-## Workflow
+## Fast Path: Current App Research
+
+Use this path when the user says the target app is already open on the test device.
+
+1. Identify the selected country from the user request. If missing, ask for `us`, `br`, `jp`, or `kr`.
+
+2. Run country verification. Use manual confirmation flags only when the user has explicitly confirmed Google Play and target-app country state:
+
+```bash
+python3 scripts/verify_country_env.py --state-dir ~/.global-ug-radar --country <COUNTRY_ID>
+```
+
+3. Capture the foreground app and compact evidence summary:
+
+```bash
+python3 scripts/capture_current_app.py --state-dir ~/.global-ug-radar --country <COUNTRY_ID> --run-id <RUN_ID> --route-id baseline
+```
+
+4. Read the generated `evidence_summary.json` first. It is the default analysis input. Open raw XML or screenshots only when:
+
+- the summary has too few visible texts or candidates;
+- candidate ranking conflicts with the screenshot;
+- a sensitive boundary needs manual verification;
+- a reportable row cannot be tied to a screenshot path and route id.
+
+5. Explore only safe entries from `candidateEntries`. Capture each visited route with `capture_current_app.py --route-id <ROUTE_ID>`. Stop at login, OTP, captcha, identity, payment, withdrawal, invite send, order, contact import, or risk-control screens.
+
+6. Analyze only from native evidence. Every user-facing gameplay row must point to a real screenshot path retained in the run directory.
+
+## Setup and Install Path
 
 1. Ask the user to choose one country: `us`, `br`, `jp`, or `kr`.
 
@@ -97,7 +136,7 @@ python3 scripts/verify_country_env.py --state-dir ~/.global-ug-radar --country <
 
 Only continue if the result status is `pass`.
 
-11. Run smart discovery. Read `references/smart-discovery.md` and `config/ug-signals.json`, capture baseline screenshots/hierarchy/OCR, score visible entries with selected-country keywords, record safe route paths, and stop at sensitive actions.
+11. Run smart discovery. Prefer `scripts/capture_current_app.py` and its `evidence_summary.json` over reading full XML/OCR. Read `references/smart-discovery.md` only when fixed routes are stale, route scoring is ambiguous, or manual exploration is needed.
 
 12. Prepare structured run JSON:
 
@@ -105,7 +144,7 @@ Only continue if the result status is `pass`.
 python3 scripts/prepare_run.py --state-dir ~/.global-ug-radar --country <COUNTRY_ID> --apps-config config/apps.example.json
 ```
 
-13. Analyze only from native app evidence. Use:
+13. Analyze only from native app evidence. Do not load every prompt by default. For single-app current-state research, use `evidence_summary.json`, screenshots, the evidence gate, and `references/output-template.md`. For batch or diff workflows, load only the specific prompt needed:
 
 - `prompts/judge-ug-page.md`
 - `prompts/analyze-ug-case.md`
@@ -119,6 +158,14 @@ python3 scripts/deliver.py --state-dir ~/.global-ug-radar --run-id <RUN_ID> --dr
 ```
 
 Only send Feishu messages or write Feishu Docs after the user explicitly confirms destination and credential path.
+
+## Token-Efficient Evidence Rules
+
+- Capture full screenshots, hierarchy, package data, country checks, and route paths; summarize them for model analysis.
+- Treat `evidence_summary.json` as a lossy index, not as the source of truth. Raw artifacts remain available for fallback.
+- Do not load complete UI XML unless the summary is insufficient.
+- Do not load every prompt file by default. For single-app current-state research, use the evidence gate below plus `references/output-template.md`.
+- If compression creates uncertainty, read the raw artifact and report the uncertainty instead of guessing.
 
 ## Evidence Gate
 
@@ -137,7 +184,7 @@ If any gate is missing, classify the result as `country_env_unverified`, `login_
 
 ## Output
 
-Read `references/output-template.md` before drafting Chinese reports. Keep the existing 5-column Feishu table contract:
+Read `references/output-template.md` before drafting Chinese reports or writing Feishu Docs. Keep the existing 5-column Feishu table contract:
 
 - `一句话介绍`
 - `玩法截图`
@@ -146,6 +193,16 @@ Read `references/output-template.md` before drafting Chinese reports. Keep the e
 - `可借鉴点`
 
 Keep evidence status internal unless the user explicitly asks for operational status.
+
+When writing a Feishu Doc, prefer structured JSON plus the renderer instead of hand-writing table XML:
+
+```bash
+python3 scripts/render_feishu_table.py --input <FINDINGS_JSON> --output <TABLE_XML>
+```
+
+The JSON rows must include `oneLine`, `screenshots`, `goal`, `highlights`, and `takeaway`. The renderer validates goal enums, row lengths, and the fixed 5-column shape.
+
+Screenshots must be inserted into the correct `玩法截图` cell of the corresponding gameplay row. Do not place gameplay screenshots above the table, below the table, between rows, or in any free-form block outside the research output table. If a row needs multiple screenshots, put them in that row's `screenshots` list / `玩法截图` cell; if screenshots belong to different mechanics, split them into separate gameplay rows.
 
 ## Decision Notes
 
