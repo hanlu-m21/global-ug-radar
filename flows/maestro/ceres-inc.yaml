@@ -1,0 +1,7 @@
+appId: ${CERES_INC_APP_ID}
+---
+- launchApp
+- waitForAnimationToEnd
+- takeScreenshot: ${SCREENSHOT_DIR}/ceres-inc-launch.png
+# Add confirmed UG entry steps only after first manual route discovery.
+# Verify the exact Ceres product package before replaying this flow.

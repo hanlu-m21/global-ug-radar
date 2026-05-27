@@ -1,4 +1,4 @@
 interface:
   display_name: "Global UG Radar"
   short_description: "Country-grade Android UG research"
-  default_prompt: "Use $global-ug-radar to choose us/br/jp/kr, provision a research-grade country Google Play emulator, verify runtime locale/MCC/SIM/timezone/geolocation/network plus Play/app country gates, install selected native apps, and run UG discovery."
+  default_prompt: "Use $global-ug-radar to choose us/br/jp/kr, provision a research-grade country Google Play emulator, verify runtime locale/MCC/SIM/timezone/geolocation/network plus Play/app country gates, install configured native apps, and run UG discovery with selected-country keyword signals."

@@ -1,6 +1,67 @@
 {
   "countryApps": {
-    "us": [],
+    "us": [
+      {
+        "id": "freecash",
+        "name": "Freecash",
+        "packageName": "TBD_VERIFY_ON_DEVICE",
+        "sourceType": "native_app_local",
+        "enabled": true,
+        "flows": ["flows/maestro/freecash.yaml"],
+        "entryTypes": ["offers", "surveys", "games", "rewards", "referral", "cashout"],
+        "notes": "Verify Play Store availability, package name, app version, and reward/cashout boundaries on the selected United States environment."
+      },
+      {
+        "id": "swagbucks",
+        "name": "Swagbucks",
+        "packageName": "TBD_VERIFY_ON_DEVICE",
+        "sourceType": "native_app_local",
+        "enabled": true,
+        "flows": ["flows/maestro/swagbucks.yaml"],
+        "entryTypes": ["surveys", "daily_poll", "games", "shopping", "gift_cards", "referral"],
+        "notes": "Capture only observation routes; do not complete surveys, redemptions, account verification, or cashout."
+      },
+      {
+        "id": "mistplay",
+        "name": "Mistplay",
+        "packageName": "TBD_VERIFY_ON_DEVICE",
+        "sourceType": "native_app_local",
+        "enabled": true,
+        "flows": ["flows/maestro/mistplay.yaml"],
+        "entryTypes": ["games", "units", "loyalty", "streaks", "gift_cards", "referral"],
+        "notes": "Verify game/task rewards and stop before installing third-party games unless the user approves."
+      },
+      {
+        "id": "chipotle",
+        "name": "Chipotle",
+        "packageName": "TBD_VERIFY_ON_DEVICE",
+        "sourceType": "native_app_local",
+        "enabled": true,
+        "flows": ["flows/maestro/chipotle.yaml"],
+        "entryTypes": ["rewards", "offers", "challenges", "wallet", "profile"],
+        "notes": "Avoid ordering, checkout, payment, and account-sensitive reward redemption paths."
+      },
+      {
+        "id": "fetch",
+        "name": "Fetch",
+        "packageName": "TBD_VERIFY_ON_DEVICE",
+        "sourceType": "native_app_local",
+        "enabled": true,
+        "flows": ["flows/maestro/fetch.yaml"],
+        "entryTypes": ["receipt_scan", "points", "gift_cards", "offers", "referral"],
+        "notes": "Do not upload real receipts or redeem gift cards; capture only visible reward mechanics."
+      },
+      {
+        "id": "microsoft-rewards",
+        "name": "Microsoft Rewards",
+        "packageName": "TBD_VERIFY_ON_DEVICE",
+        "sourceType": "native_app_local",
+        "enabled": true,
+        "flows": ["flows/maestro/microsoft-rewards.yaml"],
+        "entryTypes": ["search_tasks", "daily_set", "points", "streaks", "redemption"],
+        "notes": "Verify whether the flow is native app or Web/PWA; label WebView evidence as supplemental."
+      }
+    ],
     "br": [
       {
         "id": "mercado-livre",
@@ -43,8 +104,90 @@
         "notes": "Verify rewards and task-center entry paths during first manual route discovery."
       }
     ],
-    "jp": [],
-    "kr": []
+    "jp": [
+      {
+        "id": "pococha",
+        "name": "Pococha",
+        "packageName": "TBD_VERIFY_ON_DEVICE",
+        "sourceType": "native_app_local",
+        "enabled": true,
+        "flows": ["flows/maestro/pococha.yaml"],
+        "entryTypes": ["live_events", "missions", "rank", "rewards", "profile"],
+        "notes": "Avoid gifting, purchase, identity, and streamer monetization confirmation paths."
+      },
+      {
+        "id": "piccoma",
+        "name": "Piccoma",
+        "packageName": "TBD_VERIFY_ON_DEVICE",
+        "sourceType": "native_app_local",
+        "enabled": true,
+        "flows": ["flows/maestro/piccoma.yaml"],
+        "entryTypes": ["coins", "tickets", "daily_bonus", "campaigns", "mission"],
+        "notes": "Do not purchase coins or paid chapters; capture only visible reward, ticket, and campaign mechanics."
+      },
+      {
+        "id": "17live",
+        "name": "17LIVE",
+        "packageName": "TBD_VERIFY_ON_DEVICE",
+        "sourceType": "native_app_local",
+        "enabled": true,
+        "flows": ["flows/maestro/17live.yaml"],
+        "entryTypes": ["live_events", "missions", "rewards", "gifts", "rank"],
+        "notes": "Avoid gifting, payment, streamer payout, and sensitive social actions."
+      },
+      {
+        "id": "ceres-inc",
+        "name": "Ceres Inc.",
+        "packageName": "TBD_VERIFY_ON_DEVICE",
+        "sourceType": "native_app_local",
+        "enabled": true,
+        "flows": ["flows/maestro/ceres-inc.yaml"],
+        "entryTypes": ["points", "offers", "surveys", "missions", "exchange"],
+        "notes": "Treat as a publisher/company target; verify the exact Ceres product in Google Play before install or capture."
+      }
+    ],
+    "kr": [
+      {
+        "id": "toss",
+        "name": "Toss",
+        "packageName": "TBD_VERIFY_ON_DEVICE",
+        "sourceType": "native_app_local",
+        "enabled": true,
+        "flows": ["flows/maestro/toss.yaml"],
+        "entryTypes": ["benefits", "points", "missions", "walk_to_earn", "quiz", "invite"],
+        "notes": "Do not enter bank, transfer, identity, credit, loan, or payment confirmation paths."
+      },
+      {
+        "id": "naver",
+        "name": "Naver",
+        "packageName": "TBD_VERIFY_ON_DEVICE",
+        "sourceType": "native_app_local",
+        "enabled": true,
+        "flows": ["flows/maestro/naver.yaml"],
+        "entryTypes": ["points", "membership", "coupons", "events", "notifications"],
+        "notes": "Verify whether incentives live in Naver, Naver Pay, or WebView; keep source type explicit."
+      },
+      {
+        "id": "webtoon",
+        "name": "Webtoon",
+        "packageName": "TBD_VERIFY_ON_DEVICE",
+        "sourceType": "native_app_local",
+        "enabled": true,
+        "flows": ["flows/maestro/webtoon.yaml"],
+        "entryTypes": ["coins", "cookies", "daily_pass", "events", "attendance"],
+        "notes": "Do not buy coins/cookies or unlock paid content; capture only visible rewards and event mechanics."
+      },
+      {
+        "id": "lotte",
+        "name": "Lotte",
+        "packageName": "TBD_VERIFY_ON_DEVICE",
+        "sourceType": "native_app_local",
+        "enabled": true,
+        "flows": ["flows/maestro/lotte.yaml"],
+        "entryTypes": ["points", "membership", "coupons", "events", "benefits"],
+        "notes": "Treat as a brand/group target; verify the exact Lotte app or L.POINT product before install."
+      }
+    ]
   },
-  "notes": "When a country app list is empty, ask the user for product names or package IDs before Google Play install."
+  "notes": "Use countryApps for supported country profiles. Package names must be verified on the target Google Play country before capture."
 }

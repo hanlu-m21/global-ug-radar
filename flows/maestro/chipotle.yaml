@@ -1,0 +1,7 @@
+appId: ${CHIPOTLE_APP_ID}
+---
+- launchApp
+- waitForAnimationToEnd
+- takeScreenshot: ${SCREENSHOT_DIR}/chipotle-launch.png
+# Add confirmed UG entry steps only after first manual route discovery.
+# Do not automate ordering, checkout, payment, or reward redemption confirmation.

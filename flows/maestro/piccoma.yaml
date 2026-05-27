@@ -1,0 +1,7 @@
+appId: ${PICCOMA_APP_ID}
+---
+- launchApp
+- waitForAnimationToEnd
+- takeScreenshot: ${SCREENSHOT_DIR}/piccoma-launch.png
+# Add confirmed UG entry steps only after first manual route discovery.
+# Do not purchase coins/tickets or unlock paid content.

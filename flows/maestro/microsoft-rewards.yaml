@@ -1,0 +1,7 @@
+appId: ${MICROSOFT_REWARDS_APP_ID}
+---
+- launchApp
+- waitForAnimationToEnd
+- takeScreenshot: ${SCREENSHOT_DIR}/microsoft-rewards-launch.png
+# Add confirmed UG entry steps only after first manual route discovery.
+# Label WebView/PWA evidence explicitly if the app opens web content.

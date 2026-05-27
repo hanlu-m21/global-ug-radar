@@ -1,0 +1,7 @@
+appId: ${POCOCHA_APP_ID}
+---
+- launchApp
+- waitForAnimationToEnd
+- takeScreenshot: ${SCREENSHOT_DIR}/pococha-launch.png
+# Add confirmed UG entry steps only after first manual route discovery.
+# Do not automate gifting, purchase, payout, identity, or sensitive social actions.

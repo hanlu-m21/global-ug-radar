@@ -1,0 +1,7 @@
+appId: ${FREECASH_APP_ID}
+---
+- launchApp
+- waitForAnimationToEnd
+- takeScreenshot: ${SCREENSHOT_DIR}/freecash-launch.png
+# Add confirmed UG entry steps only after first manual route discovery.
+# Do not automate cashout, survey completion, identity, payment, or account verification.

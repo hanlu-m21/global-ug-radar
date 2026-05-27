@@ -27,7 +27,7 @@
       },
       "expectedUiSignals": ["Home", "Search", "Sign in", "For you", "Rewards"],
       "playStoreUiSignals": ["Sign in", "Apps", "Games", "For you", "Top charts", "Search"],
-      "defaultApps": []
+      "defaultApps": ["freecash", "swagbucks", "mistplay", "chipotle", "fetch", "microsoft-rewards"]
     },
     "br": {
       "id": "br",
@@ -83,7 +83,7 @@
       },
       "expectedUiSignals": ["ホーム", "検索", "ログイン", "おすすめ", "ポイント"],
       "playStoreUiSignals": ["ログイン", "アプリ", "ゲーム", "おすすめ", "ランキング", "検索"],
-      "defaultApps": []
+      "defaultApps": ["pococha", "piccoma", "17live", "ceres-inc"]
     },
     "kr": {
       "id": "kr",
@@ -111,7 +111,7 @@
       },
       "expectedUiSignals": ["홈", "검색", "로그인", "추천", "포인트"],
       "playStoreUiSignals": ["로그인", "앱", "게임", "추천", "인기 차트", "검색"],
-      "defaultApps": []
+      "defaultApps": ["toss", "naver", "webtoon", "lotte"]
     }
   }
 }

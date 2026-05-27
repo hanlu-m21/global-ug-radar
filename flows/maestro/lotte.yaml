@@ -1,0 +1,7 @@
+appId: ${LOTTE_APP_ID}
+---
+- launchApp
+- waitForAnimationToEnd
+- takeScreenshot: ${SCREENSHOT_DIR}/lotte-launch.png
+# Add confirmed UG entry steps only after first manual route discovery.
+# Verify the exact Lotte app/package before replaying this flow.

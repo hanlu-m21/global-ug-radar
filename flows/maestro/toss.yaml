@@ -1,0 +1,7 @@
+appId: ${TOSS_APP_ID}
+---
+- launchApp
+- waitForAnimationToEnd
+- takeScreenshot: ${SCREENSHOT_DIR}/toss-launch.png
+# Add confirmed UG entry steps only after first manual route discovery.
+# Do not automate bank, identity, transfer, credit, loan, payment, or payout flows.

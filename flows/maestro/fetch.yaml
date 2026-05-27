@@ -1,0 +1,7 @@
+appId: ${FETCH_APP_ID}
+---
+- launchApp
+- waitForAnimationToEnd
+- takeScreenshot: ${SCREENSHOT_DIR}/fetch-launch.png
+# Add confirmed UG entry steps only after first manual route discovery.
+# Do not upload real receipts, redeem gift cards, or complete payout/account verification.

@@ -2,7 +2,7 @@
 
 Use this template for every Feishu Doc research output. The only user-facing goal is: 让设计师 3 秒看懂一个玩法，30 秒决定能不能借鉴。
 
-Use Chinese-first prose. Preserve product names, mechanism names, and UI component names in English. Portuguese text can remain inside screenshots or OCR evidence only.
+Use Chinese-first prose. Preserve product names, mechanism names, and UI component names in their original source language when that name is part of the product surface. Selected-country UI text can remain inside screenshots or OCR evidence only.
 
 ## Feishu Table Contract
 

@@ -32,10 +32,20 @@ When `doctor.py` or `adb devices` returns zero devices, do not conclude that the
 ## Discovery Loop
 
 1. Capture baseline state: screenshot, UI hierarchy, foreground package/activity, app version, language, network/region, and timestamp.
-2. Score visible entries using UG signals. High-priority signals include local-language equivalents of bonus, reward, invite, referral, cashback, coupon, coins, points, mission, tasks, check-in, promo, and benefits. Use OCR/source text from the selected country language.
+2. Score visible entries using `config/ug-signals.json`. Prefer the selected country's `highPriorityKeywords`, then `safeEntryLabels`, and treat `stopPhrases` as safety boundaries.
 3. Tap only safe navigation candidates: tabs, profile/menu entries, wallet/benefits/rewards centers, non-committing banners, task-center entries, and floating reward icons.
 4. After each tap, capture screenshot and hierarchy, record the route path, classify the page, then backtrack safely.
 5. Keep a route graph and a short candidate report with confirmed pages, rejected pages, blocked paths, and next human actions.
+
+## Keyword Sources
+
+Load `config/ug-signals.json` when scoring routes:
+
+- `highPriorityKeywords`: OCR/source-text terms that usually indicate UG mechanics.
+- `safeEntryLabels`: low-risk navigation labels worth inspecting first.
+- `stopPhrases`: terms that should stop automation and ask for human handling.
+
+Do not translate a keyword match into a confirmed finding by itself. A reportable row still needs a real screenshot, route path, country verification, app package/version, hierarchy, and OCR.
 
 ## Stop Conditions
 

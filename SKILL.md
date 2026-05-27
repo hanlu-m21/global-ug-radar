@@ -1,6 +1,6 @@
 ---
 name: global-ug-radar
-description: Country-first native Android user-growth competitor research for the United States, Brazil, Japan, and Korea. Use when Codex needs to ask the user to choose a country, provision or start a research-grade country Android Google Play emulator, verify runtime locale/MCC/SIM/timezone/geolocation/network/Google Play/app content country gates before research, prompt for manual Google Play and app login, install selected native apps, capture screenshots/hierarchy/OCR evidence, discover UG pages such as invite/reward/task/cashback/sign-in flows, compare baseline changes, and prepare Chinese Feishu message/Doc outputs.
+description: Country-first native Android user-growth competitor research for the United States, Brazil, Japan, and Korea. Use when Codex needs to choose a verified country environment, provision or start a research-grade Android Google Play emulator, verify runtime locale/MCC/SIM/timezone/geolocation/network/Google Play/app content country gates, prompt for manual Google Play and app login, install selected native apps, capture screenshots/hierarchy/OCR evidence, discover UG pages using country-language invite/reward/task/cashback/sign-in keyword signals, compare baseline changes, and prepare Chinese Feishu message/Doc outputs.
 ---
 
 # Global UG Radar
@@ -24,6 +24,8 @@ Keep the workflow stable by using progressive disclosure:
 
 - `SKILL.md`: country-first workflow and hard gates only.
 - `config/countries.json`: country profiles, locale, timezone, AVD name, network country, and default apps.
+- `config/apps.example.json`: supported-country app candidates.
+- `config/ug-signals.json`: country-language UG keywords, safe entry labels, and stop phrases.
 - `references/country-environment.md`: how to apply and verify country-specific emulator state.
 - `references/safety-boundaries.md`: actions that require human handling.
 - `references/smart-discovery.md`: native app route discovery.
@@ -81,7 +83,7 @@ This script must pass automated checks for device visibility, runtime locale, lo
 
 - If `config/countries.json` has `defaultApps`, show those first.
 - If no default apps are configured, ask the user for product names or package IDs.
-- For Brazil, the default first-version apps remain `Mercado Livre`, `PicPay`, `Shopee`, and `Kwai`.
+- Also read `config/apps.example.json` for the selected country app metadata.
 
 8. Install selected apps from Google Play when available. If Play Store blocks installation by country, account, compatibility, or risk state, capture the blocker and stop with `install_blocked`.
 
@@ -95,7 +97,7 @@ python3 scripts/verify_country_env.py --state-dir ~/.global-ug-radar --country <
 
 Only continue if the result status is `pass`.
 
-11. Run smart discovery. Read `references/smart-discovery.md`, capture baseline screenshots/hierarchy/OCR, record safe route paths, and stop at sensitive actions.
+11. Run smart discovery. Read `references/smart-discovery.md` and `config/ug-signals.json`, capture baseline screenshots/hierarchy/OCR, score visible entries with selected-country keywords, record safe route paths, and stop at sensitive actions.
 
 12. Prepare structured run JSON:
 

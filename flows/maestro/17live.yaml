@@ -1,0 +1,7 @@
+appId: ${SEVENTEEN_LIVE_APP_ID}
+---
+- launchApp
+- waitForAnimationToEnd
+- takeScreenshot: ${SCREENSHOT_DIR}/17live-launch.png
+# Add confirmed UG entry steps only after first manual route discovery.
+# Do not automate gifting, payment, payout, or sensitive social actions.

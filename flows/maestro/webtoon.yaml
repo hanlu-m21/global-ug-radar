@@ -1,0 +1,7 @@
+appId: ${WEBTOON_APP_ID}
+---
+- launchApp
+- waitForAnimationToEnd
+- takeScreenshot: ${SCREENSHOT_DIR}/webtoon-launch.png
+# Add confirmed UG entry steps only after first manual route discovery.
+# Do not buy coins/cookies, unlock paid content, or complete purchases.

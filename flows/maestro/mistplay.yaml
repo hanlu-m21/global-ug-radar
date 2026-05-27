@@ -1,0 +1,7 @@
+appId: ${MISTPLAY_APP_ID}
+---
+- launchApp
+- waitForAnimationToEnd
+- takeScreenshot: ${SCREENSHOT_DIR}/mistplay-launch.png
+# Add confirmed UG entry steps only after first manual route discovery.
+# Do not install third-party games, redeem rewards, or complete account-sensitive actions without user approval.
