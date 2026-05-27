@@ -41,9 +41,10 @@ Keep `SKILL.md` as the router. Load references only for the active stage:
 - `scripts/provision_country_avd.py`: create/start research-grade Google Play AVDs and country ICC profiles.
 - `scripts/verify_country_env.py`: hard country-environment validation gate.
 - `scripts/capture_current_app.py`: capture the foreground Android app and write a compact `evidence_summary.json` from screenshot, hierarchy, package, and country-signal matches.
+- `scripts/build_analysis_pack.py`: merge captured summaries into the default `standard + raw fallback` model input.
 - `scripts/prepare_run.py`: create a prepared run shell when no capture manifest exists.
-- `scripts/render_feishu_table.py`: validate structured findings and render the fixed 5-column Feishu table XML.
-- `scripts/deliver.py`: create local Feishu payloads; direct Feishu writes still require explicit user destination confirmation.
+- `scripts/render_feishu_table.py`: validate structured findings, render the fixed 5-column Feishu table XML, and emit the screenshot-to-cell manifest.
+- `scripts/deliver.py`: create local Feishu payloads and run strict table-image preflight; direct Feishu writes still require explicit user destination confirmation.
 
 ## Hard Boundaries
 
@@ -75,7 +76,13 @@ python3 scripts/verify_country_env.py --state-dir ~/.global-ug-radar --country <
 python3 scripts/capture_current_app.py --state-dir ~/.global-ug-radar --country <COUNTRY_ID> --run-id <RUN_ID> --route-id baseline
 ```
 
-4. Read the generated `evidence_summary.json` first. It is the default analysis input. Open raw XML or screenshots only when:
+4. Read the generated `evidence_summary.json` first. For more than one captured route, build the standard analysis pack:
+
+```bash
+python3 scripts/build_analysis_pack.py --state-dir ~/.global-ug-radar --run-id <RUN_ID>
+```
+
+Use `analysis_pack.json` as the default model input. Open raw XML or screenshots only when:
 
 - the summary has too few visible texts or candidates;
 - candidate ranking conflicts with the screenshot;
@@ -144,7 +151,7 @@ Only continue if the result status is `pass`.
 python3 scripts/prepare_run.py --state-dir ~/.global-ug-radar --country <COUNTRY_ID> --apps-config config/apps.example.json
 ```
 
-13. Analyze only from native app evidence. Do not load every prompt by default. For single-app current-state research, use `evidence_summary.json`, screenshots, the evidence gate, and `references/output-template.md`. For batch or diff workflows, load only the specific prompt needed:
+13. Analyze only from native app evidence. Default to `standard + raw fallback`: build/read `analysis_pack.json` first, then open raw screenshots/XML/OCR only for the fallback reasons listed in the pack or when a reportable row cannot be tied to a screenshot and route id. Do not load every prompt by default. For single-app current-state research, use `evidence_summary.json` or `analysis_pack.json`, the evidence gate, and `references/output-template.md`. For batch or diff workflows, load only the specific prompt needed:
 
 - `prompts/judge-ug-page.md`
 - `prompts/analyze-ug-case.md`
@@ -154,7 +161,7 @@ python3 scripts/prepare_run.py --state-dir ~/.global-ug-radar --country <COUNTRY
 14. Prepare delivery artifacts as dry-run/local payloads first:
 
 ```bash
-python3 scripts/deliver.py --state-dir ~/.global-ug-radar --run-id <RUN_ID> --dry-run
+python3 scripts/deliver.py --state-dir ~/.global-ug-radar --run-id <RUN_ID> --dry-run --strict-table-images --table-manifest <TABLE_IMAGE_MANIFEST_JSON>
 ```
 
 Only send Feishu messages or write Feishu Docs after the user explicitly confirms destination and credential path.
@@ -162,10 +169,12 @@ Only send Feishu messages or write Feishu Docs after the user explicitly confirm
 ## Token-Efficient Evidence Rules
 
 - Capture full screenshots, hierarchy, package data, country checks, and route paths; summarize them for model analysis.
-- Treat `evidence_summary.json` as a lossy index, not as the source of truth. Raw artifacts remain available for fallback.
+- Use `standard + raw fallback` by default. Expected savings are 45-65% tokens and 30-55% response-time improvement on multi-route runs, with target quality loss 0-2% when fallback is followed.
+- Treat `analysis_pack.json` and `evidence_summary.json` as lossy indexes, not as the source of truth. Raw artifacts remain available for fallback.
 - Do not load complete UI XML unless the summary is insufficient.
 - Do not load every prompt file by default. For single-app current-state research, use the evidence gate below plus `references/output-template.md`.
 - If compression creates uncertainty, read the raw artifact and report the uncertainty instead of guessing.
+- Do not use top-candidate-only fast mode for final reports unless the user explicitly asks for a quick scan and accepts missed-candidate risk.
 
 ## Evidence Gate
 
@@ -197,12 +206,16 @@ Keep evidence status internal unless the user explicitly asks for operational st
 When writing a Feishu Doc, prefer structured JSON plus the renderer instead of hand-writing table XML:
 
 ```bash
-python3 scripts/render_feishu_table.py --input <FINDINGS_JSON> --output <TABLE_XML>
+python3 scripts/render_feishu_table.py --input <FINDINGS_JSON> --output <TABLE_XML> --image-manifest-output <TABLE_IMAGE_MANIFEST_JSON> --require-local-images
 ```
 
-The JSON rows must include `oneLine`, `screenshots`, `goal`, `highlights`, and `takeaway`. The renderer validates goal enums, row lengths, and the fixed 5-column shape.
+The JSON rows must include `rowId`, `oneLine`, `screenshots`, `goal`, `highlights`, and `takeaway`. The renderer validates goal enums, row lengths, local screenshot readability, and the fixed 5-column shape. `screenshots` entries should be local image paths or objects with `path` plus optional `label` / `caption` / `state`.
+
+Before writing a Feishu Doc, upload every screenshot first and map the returned image/file token back to `TABLE_IMAGE_MANIFEST_JSON`. If any image upload fails after retry or format/size recovery, stop as `image_upload_failed` before generating review text or continuing analysis. Do not spend tokens reviewing a document with missing images.
 
 Screenshots must be inserted into the correct `玩法截图` cell of the corresponding gameplay row. Do not place gameplay screenshots above the table, below the table, between rows, or in any free-form block outside the research output table. If a row needs multiple screenshots, put them in that row's `screenshots` list / `玩法截图` cell; if screenshots belong to different mechanics, split them into separate gameplay rows.
+
+After writing to Feishu Docs, read back the document structure before marking delivery complete. Verify that every uploaded screenshot appears inside a table, every uploaded screenshot is in the matching row's `玩法截图` cell, no uploaded gameplay screenshot appears outside the table, and the local screenshot count equals the Feishu document screenshot count. If any check fails, classify delivery as `table_image_validation_failed` and do not claim success.
 
 ## Decision Notes
 

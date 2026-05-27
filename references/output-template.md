@@ -43,6 +43,8 @@ Do not add or remove columns. Do not add `证据状态`, `变化判断`, `来源
 
 - Include 1-3 key screenshots.
 - Put screenshots inside the `玩法截图` cell of the corresponding gameplay row. Do not place gameplay screenshots above the table, below the table, between rows, or in any free-form block outside the research output table.
+- For direct Feishu Doc writes, upload all screenshots before writing the table, then insert each uploaded image token only into the matching row's `玩法截图` cell according to the table image manifest.
+- If any screenshot cannot be uploaded or cannot be inserted into its table cell, stop as `image_upload_failed` or `table_image_validation_failed` before downstream review.
 - If multiple screenshots explain one mechanic, keep them in the same row's `玩法截图` cell. If screenshots explain different mechanics, split them into separate gameplay rows.
 - Add state labels only when needed, and each label must be ≤4 Chinese characters, such as `解锁前`, `解锁中`, `解锁后`.
 - Screenshots must independently explain the mechanic without relying on text explanation.
@@ -113,7 +115,9 @@ Before writing or sending the Feishu Doc, verify:
 - No business, finance, technical, or company-history content unrelated to design decisions remains.
 - Every `一句话介绍` is ≤15 Chinese characters.
 - Screenshots are independently readable.
+- All screenshot uploads succeeded before table writing started.
 - All gameplay screenshots are inside the correct row's `玩法截图` cell, not outside the table.
+- A read-back structure check confirms no gameplay screenshot exists outside the table and no row screenshot is in the wrong cell.
 - The final structure matches the reference: product rows first, then the fixed 5-column gameplay table.
 
 ## Native Evidence Gate

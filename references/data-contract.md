@@ -3,7 +3,7 @@
 The stable handoff is:
 
 ```text
-country profile -> country verification -> discovery artifacts -> route_candidates.md/capture manifest -> prepared.json -> diff.json -> analysis.md -> feishu-payload.json
+country profile -> country verification -> discovery artifacts -> route_candidates.md/capture manifest -> prepared.json -> analysis_pack.json -> diff.json -> analysis.md -> table_image_manifest.json -> feishu-payload.json
 ```
 
 Global UG Radar has no reader evidence mode. Every reportable run starts from current local Android capture artifacts in the selected verified country environment.
@@ -89,3 +89,33 @@ Global UG Radar has no reader evidence mode. Every reportable run starts from cu
 - `changed`: meaningful UG change detected.
 - `unchanged`: no meaningful UG change detected.
 - `needs_review`: insufficient evidence or uncertain classification.
+- `image_upload_failed`: one or more gameplay screenshots could not be uploaded before Feishu table writing.
+- `table_image_validation_failed`: Feishu read-back found a missing screenshot, wrong-row screenshot, wrong-cell screenshot, or table-external gameplay screenshot.
+
+## analysis_pack.json
+
+Use `analysis_pack.json` as the default model input for standard runs. It is a lossy index over retained raw artifacts, not the source of truth. Each route card keeps country/app identity, screenshot and hierarchy paths, top visible text, ranked candidate entries, stop phrases, evidence hashes, and explicit raw-fallback reasons.
+
+Open raw screenshots/XML/OCR when `rawFallback.required` is true, when candidate ranking conflicts with the screenshot, or when a reportable row cannot be tied to a route screenshot.
+
+## table_image_manifest.json
+
+The Feishu table image manifest maps every gameplay screenshot to a row and the fixed screenshot cell:
+
+```json
+{
+  "schemaVersion": "2026-05-27.feishu-table-images.v1",
+  "rows": [
+    {
+      "rowId": "daily-bonus",
+      "tableRowIndex": 4,
+      "screenshotCell": {"columnName": "玩法截图", "columnIndex": 2},
+      "screenshots": [
+        {"imageIndex": 1, "path": "/abs/path/screen.png", "placeholder": "{{screenshot:daily-bonus:1}}"}
+      ]
+    }
+  ]
+}
+```
+
+Direct Feishu writers must upload images first, insert uploaded image tokens into the matching `玩法截图` cell, then read back the document structure before marking delivery complete.
