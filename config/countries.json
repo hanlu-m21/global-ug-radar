@@ -1,0 +1,117 @@
+{
+  "profileVersion": "2026-05-26",
+  "countries": {
+    "us": {
+      "id": "us",
+      "displayName": "United States",
+      "userLabel": "美国",
+      "countryCode": "US",
+      "locale": "en-US",
+      "timezone": "America/New_York",
+      "networkCountry": "US",
+      "recommendedAvdName": "global_ug_us_google_play",
+      "researchAvdName": "global_ug_us_research_play",
+      "simProfile": {
+        "carrierAlpha": "T-Mobile",
+        "imsi": "310260000000000",
+        "mcc": "310",
+        "mnc": "260",
+        "mncLength": 3,
+        "operatorNumeric": "310260",
+        "operatorIsoCountry": "us",
+        "operatorResidualPolicy": "strict"
+      },
+      "geo": {
+        "latitude": 40.7128,
+        "longitude": -74.006
+      },
+      "expectedUiSignals": ["Home", "Search", "Sign in", "For you", "Rewards"],
+      "playStoreUiSignals": ["Sign in", "Apps", "Games", "For you", "Top charts", "Search"],
+      "defaultApps": []
+    },
+    "br": {
+      "id": "br",
+      "displayName": "Brazil",
+      "userLabel": "巴西",
+      "countryCode": "BR",
+      "locale": "pt-BR",
+      "timezone": "America/Sao_Paulo",
+      "networkCountry": "BR",
+      "recommendedAvdName": "global_ug_br_google_play",
+      "researchAvdName": "global_ug_br_research_play",
+      "simProfile": {
+        "carrierAlpha": "Claro BR",
+        "imsi": "724050000000000",
+        "mcc": "724",
+        "mnc": "05",
+        "mncLength": 2,
+        "operatorNumeric": "72405",
+        "operatorIsoCountry": "br",
+        "operatorResidualPolicy": "warn"
+      },
+      "geo": {
+        "latitude": -23.5505,
+        "longitude": -46.6333
+      },
+      "expectedUiSignals": ["Inicio", "Buscar", "Entrar", "Para voce", "Recompensas"],
+      "playStoreUiSignals": ["Entrar", "Apps", "Jogos", "Para voce", "Ranking", "Pesquisar"],
+      "defaultApps": ["mercado-livre", "picpay", "shopee", "kwai"]
+    },
+    "jp": {
+      "id": "jp",
+      "displayName": "Japan",
+      "userLabel": "日本",
+      "countryCode": "JP",
+      "locale": "ja-JP",
+      "timezone": "Asia/Tokyo",
+      "networkCountry": "JP",
+      "recommendedAvdName": "global_ug_jp_google_play",
+      "researchAvdName": "global_ug_jp_research_play",
+      "simProfile": {
+        "carrierAlpha": "NTT DOCOMO",
+        "imsi": "440100000000000",
+        "mcc": "440",
+        "mnc": "10",
+        "mncLength": 2,
+        "operatorNumeric": "44010",
+        "operatorIsoCountry": "jp",
+        "operatorResidualPolicy": "warn"
+      },
+      "geo": {
+        "latitude": 35.6762,
+        "longitude": 139.6503
+      },
+      "expectedUiSignals": ["ホーム", "検索", "ログイン", "おすすめ", "ポイント"],
+      "playStoreUiSignals": ["ログイン", "アプリ", "ゲーム", "おすすめ", "ランキング", "検索"],
+      "defaultApps": []
+    },
+    "kr": {
+      "id": "kr",
+      "displayName": "Korea",
+      "userLabel": "韩国",
+      "countryCode": "KR",
+      "locale": "ko-KR",
+      "timezone": "Asia/Seoul",
+      "networkCountry": "KR",
+      "recommendedAvdName": "global_ug_kr_google_play",
+      "researchAvdName": "global_ug_kr_research_play",
+      "simProfile": {
+        "carrierAlpha": "KT",
+        "imsi": "450080000000000",
+        "mcc": "450",
+        "mnc": "08",
+        "mncLength": 2,
+        "operatorNumeric": "45008",
+        "operatorIsoCountry": "kr",
+        "operatorResidualPolicy": "warn"
+      },
+      "geo": {
+        "latitude": 37.5665,
+        "longitude": 126.978
+      },
+      "expectedUiSignals": ["홈", "검색", "로그인", "추천", "포인트"],
+      "playStoreUiSignals": ["로그인", "앱", "게임", "추천", "인기 차트", "검색"],
+      "defaultApps": []
+    }
+  }
+}

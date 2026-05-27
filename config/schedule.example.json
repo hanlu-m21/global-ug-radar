@@ -1,0 +1,13 @@
+{
+  "schedule": {
+    "frequency": "weekly",
+    "weekday": "TBD",
+    "time": "TBD",
+    "timezone": "Asia/Shanghai"
+  },
+  "notificationPolicy": {
+    "sendWhenChanged": true,
+    "sendWhenNoSignificantChange": true,
+    "ignoreTinyVisualChanges": true
+  }
+}

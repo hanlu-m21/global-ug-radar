@@ -1,0 +1,8 @@
+# Safe placeholder flow for Global UG Radar route discovery.
+# Replace appId and taps only after the user manually confirms the route.
+appId: ${APP_ID}
+---
+- launchApp
+- waitForAnimationToEnd
+- takeScreenshot: ${SCREENSHOT_DIR}/launch.png
+# Add only observation-oriented steps. Never tap invite/send/pay/withdraw/order confirmations.

@@ -1,0 +1,50 @@
+{
+  "countryApps": {
+    "us": [],
+    "br": [
+      {
+        "id": "mercado-livre",
+        "name": "Mercado Livre",
+        "packageName": "TBD_VERIFY_ON_DEVICE",
+        "sourceType": "native_app_local",
+        "enabled": true,
+        "flows": ["flows/maestro/mercado-livre.yaml"],
+        "entryTypes": ["home_campaign", "profile", "wallet", "coupons", "invite"],
+        "notes": "Verify package name and first routes on the selected Brazil country environment."
+      },
+      {
+        "id": "picpay",
+        "name": "PicPay",
+        "packageName": "TBD_VERIFY_ON_DEVICE",
+        "sourceType": "native_app_local",
+        "enabled": true,
+        "flows": ["flows/maestro/picpay.yaml"],
+        "entryTypes": ["home_campaign", "wallet", "cashback", "invite", "rewards"],
+        "notes": "Do not automate payments, wallet actions, withdrawal, transfer, or sensitive confirmation."
+      },
+      {
+        "id": "shopee",
+        "name": "Shopee",
+        "packageName": "TBD_VERIFY_ON_DEVICE",
+        "sourceType": "native_app_local",
+        "enabled": true,
+        "flows": ["flows/maestro/shopee.yaml"],
+        "entryTypes": ["home_campaign", "coins", "coupons", "tasks", "invite"],
+        "notes": "Verify package and avoid order/payment paths."
+      },
+      {
+        "id": "kwai",
+        "name": "Kwai",
+        "packageName": "TBD_VERIFY_ON_DEVICE",
+        "sourceType": "native_app_local",
+        "enabled": true,
+        "flows": ["flows/maestro/kwai.yaml"],
+        "entryTypes": ["home_campaign", "rewards", "tasks", "sign_in", "invite"],
+        "notes": "Verify rewards and task-center entry paths during first manual route discovery."
+      }
+    ],
+    "jp": [],
+    "kr": []
+  },
+  "notes": "When a country app list is empty, ask the user for product names or package IDs before Google Play install."
+}

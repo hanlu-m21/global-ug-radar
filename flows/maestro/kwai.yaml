@@ -1,0 +1,6 @@
+appId: ${KWAI_APP_ID}
+---
+- launchApp
+- waitForAnimationToEnd
+- takeScreenshot: ${SCREENSHOT_DIR}/kwai-launch.png
+# Add confirmed UG entry steps only after first manual route discovery.

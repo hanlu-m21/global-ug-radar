@@ -1,0 +1,9 @@
+{
+  "feishu": {
+    "mode": "TBD_OPEN_PLATFORM_APP_OR_LARK_CLI",
+    "messageTarget": "TBD",
+    "docToken": "TBD",
+    "credentialPath": "~/.global-ug-radar/secrets/feishu.local.json",
+    "sendByDefault": false
+  }
+}
