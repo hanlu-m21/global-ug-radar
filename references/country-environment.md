@@ -35,16 +35,16 @@ Do not hide this residual risk in notes. Record it in verification output.
 Use the provisioning script instead of hand-assembling AVDs:
 
 ```bash
-python3 scripts/provision_country_avd.py --state-dir ~/.global-ug-radar --country <COUNTRY_ID> --start
-```
-
-For a plan without creating or starting an emulator:
-
-```bash
 python3 scripts/provision_country_avd.py --state-dir ~/.global-ug-radar --country <COUNTRY_ID> --dry-run
 ```
 
-The script creates or reuses `researchAvdName`, configures Google Play, disables snapshots, sets the data partition size, generates a country ICC profile, starts with `-icc-profile`, applies timezone/geolocation, and opens Android language settings.
+After the user approves the displayed storage/memory plan, create or start the emulator explicitly:
+
+```bash
+python3 scripts/provision_country_avd.py --state-dir ~/.global-ug-radar --country <COUNTRY_ID> --storage-gb <DOCTOR_RECOMMENDED_GB> --confirm-resource-use --start
+```
+
+The script creates or reuses `researchAvdName`, configures Google Play, disables snapshots, sets the data partition size, generates a country ICC profile, starts with `-icc-profile`, applies timezone/geolocation, and opens Android language settings. Default storage should come from `doctor.py` and is normally 24GB. Use 50GB only when the user explicitly asks for high-capacity mode.
 
 If system-image creation fails, install the reported Google Play system image with `sdkmanager`, then rerun the script.
 

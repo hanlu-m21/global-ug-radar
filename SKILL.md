@@ -1,6 +1,6 @@
 ---
 name: global-ug-radar
-description: Token-efficient, country-first native Android user-growth competitor research for the United States, Brazil, Japan, and Korea. Use when Codex needs to verify country emulator/Google Play/app gates, research an already-open Android app, install configured native apps when needed, capture screenshots/hierarchy/OCR evidence, summarize UG candidates with scripts, compare baseline changes, and prepare Chinese Feishu message/Doc outputs.
+description: Token-efficient, country-first native Android user-growth and incentive-activity competitor research for the United States, Brazil, Japan, and Korea. Use when Codex needs to verify country emulator/Google Play/app gates, research an already-open Android app, install configured native apps when needed, capture screenshots/hierarchy/OCR evidence, supplement with region-verified Inspire materials, deconstruct incentive mechanics, compare baseline changes, and prepare Chinese Feishu message/Doc outputs.
 ---
 
 # Global UG Radar
@@ -25,6 +25,7 @@ Choose the narrowest mode that matches the user's request:
 1. `research-current-app` - default when the target app is already open on the test device.
 2. `setup-and-install` - use when the country emulator, Google Play state, or target app is not ready.
 3. `deliver` - use when evidence already exists and the user asks for Feishu/Doc output.
+4. `incentive-activity-analysis` - use when the user provides screenshots or asks to analyze/rewrite incentive activity cases, including dual-source material from native app capture and region-verified Inspire pages.
 
 ## Load Only When Needed
 
@@ -36,7 +37,7 @@ Keep `SKILL.md` as the router. Load references only for the active stage:
 - `references/country-environment.md`: read only for emulator provisioning or country verification failures.
 - `references/safety-boundaries.md`: read only when an action may cross login, payment, invite, identity, or wallet boundaries.
 - `references/smart-discovery.md`: read only for manual route exploration or unclear UG candidates.
-- `references/output-template.md`: read only immediately before drafting or writing Chinese Feishu output.
+- `references/output-template.md`: read only immediately before drafting/writing Chinese Feishu output or incentive activity analysis.
 - `scripts/doctor.py`: local tooling, storage, and selected-country readiness.
 - `scripts/provision_country_avd.py`: create/start research-grade Google Play AVDs and country ICC profiles.
 - `scripts/verify_country_env.py`: hard country-environment validation gate.
@@ -52,11 +53,43 @@ Keep `SKILL.md` as the router. Load references only for the active stage:
 - Never enter Google Play credentials, app passwords, OTP, captcha, identity checks, payment data, invite sends, withdrawals, orders, transfers, contact import, or sensitive confirmations.
 - Do not fabricate findings when screenshots, OCR, hierarchy, package/version, or country verification are missing.
 - Do not treat `adb devices: 0` as proof that no emulator exists. Check AVDs and recover the ADB connection first.
-- Before creating an emulator, check disk space. Prefer 50GB storage when possible; otherwise choose the smaller size recommended by `doctor.py` while preserving local free-space headroom.
+- Installing this skill must never create, install, or start an emulator.
+- Before creating or starting an emulator, check disk space and physical memory with `doctor.py`, show the planned size, and wait for explicit user confirmation.
+- Default emulator storage is the smaller size recommended by `doctor.py` (normally 24GB, minimum 12GB). Treat 50GB as high-capacity mode only when the user explicitly asks for it.
 - Do not continue research if the emulator is in a non-selected-country state. Report the failed check and the recovery step.
 - Do not reuse an old AVD or snapshot when country conformity matters. Use the selected country's research AVD and cold boot path.
 - Do not accept language-only configuration as country proof. Runtime locale, SIM/MCC, network egress, Google Play content, and app content must be checked.
+- Do not use Inspire/public screenshots in a country row until the requested country is verified from source metadata, UI copy, currency, app region, or campaign context.
+- Reject region mismatches as `region_mismatch`; for example, Indonesian copy, `Rp`, or Indonesia source metadata cannot be used as Brazil evidence.
+- Do not infer Brazil from Portuguese alone. Prefer Brazil-specific signals such as `R$`, Brazilian Portuguese campaign copy, app-store country, local social channels, or source region metadata.
 - Store runs, screenshots, baselines, logs, and secrets under `~/.global-ug-radar/` or the user-provided state directory, never inside the skill folder.
+
+## Incentive Activity Analysis Path
+
+Use this path when the user asks for `一句话介绍 / 玩法截图 / 目标 / 亮点分析 / 可借鉴点`, analyzes a single activity screenshot, or rewrites incentive cases for a Feishu Doc.
+
+1. Identify the requested country first. If missing, ask for the country before selecting materials.
+
+2. Gather material from two tracks when available:
+
+- `native_app`: verified country emulator/current app capture. This is the strongest source.
+- `inspire`: `/inspire-research` image/page recognition or search. Use it to screen competitor pages cheaply, but only after region verification.
+
+3. If `/inspire-research` is not available, try to install it through the available skill/tool installer exactly once. If installation needs credentials, a private token, or global-path write approval, ask once and continue after approval. If it cannot be installed, use the installed `inspire-search` fallback only when useful and label it internally as `inspire_search_fallback`. Never fabricate `/inspire-research` results.
+
+4. Before using an Inspire asset in a row, run the region gate:
+
+- Check the requested country against source metadata, UI language, currency, activity copy, app listing/region, and visible social/share channels.
+- For Brazil, prefer `R$`, Brazilian Portuguese copy, Brazil campaign context, or Brazil app metadata. Reject `Rp`, Indonesian copy, or Indonesian metadata.
+- If the country is unclear, mark the asset `region_unverified` and do not use it as a confirmed finding.
+
+5. Analyze incentives before UI details:
+
+- Classify the core goal: acquisition, retention, task conversion, posting, sharing/propagation, monetization, segmentation, or brand building.
+- Explain the local reason: holiday, social habit, payment/currency salience, channel preference, cultural symbol, or household/pet/family context.
+- Tie every highlight to the incentive mechanism, not only to the visible screenshot.
+
+6. Write in the fixed output shape: `一句话介绍`, `玩法截图`, `目标`, `亮点分析`, `可借鉴点`. Use plain Chinese. In `亮点分析`, start each item with a bold conclusion, not a `为什么...` question. In `可借鉴点`, name an incentive landing scene such as invite page, share path, task page, check-in, video task, reward center, withdrawal, push/return, or posting entry.
 
 ## Fast Path: Current App Research
 
@@ -105,12 +138,18 @@ Use `analysis_pack.json` as the default model input. Open raw XML or screenshots
 python3 scripts/doctor.py --state-dir ~/.global-ug-radar --country <COUNTRY_ID>
 ```
 
-Use the returned `storage.recommendedEmulatorGb`, `country.researchAvdName` or `country.recommendedAvdName`, locale, timezone, and network country. For country-conforming research, prefer the selected `researchAvdName`; only reuse an existing AVD when it was provisioned by this skill for the same country and has no stale snapshot dependency.
+Use the returned `storage.recommendedEmulatorGb`, `memory`, `country.researchAvdName` or `country.recommendedAvdName`, locale, timezone, and network country. For country-conforming research, prefer the selected `researchAvdName`; only reuse an existing AVD when it was provisioned by this skill for the same country and has no stale snapshot dependency.
 
-4. Provision or normalize the selected-country research emulator. Read `references/country-environment.md`, then run:
+4. Provision or normalize the selected-country research emulator only after a dry run and explicit user approval. Read `references/country-environment.md`, then plan first:
 
 ```bash
-python3 scripts/provision_country_avd.py --state-dir ~/.global-ug-radar --country <COUNTRY_ID> --storage-gb <DOCTOR_RECOMMENDED_GB> --start
+python3 scripts/provision_country_avd.py --state-dir ~/.global-ug-radar --country <COUNTRY_ID> --storage-gb <DOCTOR_RECOMMENDED_GB> --dry-run
+```
+
+Tell the user the planned AVD name, storage size, memory status, and whether the emulator will be started. Only after approval, run:
+
+```bash
+python3 scripts/provision_country_avd.py --state-dir ~/.global-ug-radar --country <COUNTRY_ID> --storage-gb <DOCTOR_RECOMMENDED_GB> --confirm-resource-use --start
 ```
 
 Use a fresh `researchAvdName` from `config/countries.json` when the user requires country-conforming research. The script must generate the country ICC profile, disable stale snapshots, start with `-icc-profile`, apply timezone/geolocation, and open Android language settings. Finish the Android Settings language switch by putting the profile language first, then verify with `adb shell am get-config`.
@@ -189,7 +228,7 @@ Every reportable gameplay row must include:
 - target app target-country content screenshot or blocker;
 - native app package name, version, foreground activity, account state, capture time, route id, screenshot, hierarchy, and OCR.
 
-If any gate is missing, classify the result as `country_env_unverified`, `login_blocked`, `device_not_connected`, `native_app_missing`, `install_blocked`, `not_captured`, or `web_supplement_only`. Do not write it as a confirmed app finding.
+If any gate is missing, classify the result as `country_env_unverified`, `login_blocked`, `device_not_connected`, `native_app_missing`, `install_blocked`, `not_captured`, `web_supplement_only`, `region_unverified`, `region_mismatch`, `inspire_skill_missing`, or `inspire_search_fallback`. Do not write it as a confirmed app finding.
 
 ## Output
 

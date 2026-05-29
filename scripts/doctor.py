@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -104,9 +105,10 @@ def check_state_dir(path: Path) -> dict:
 
 def check_storage(
     path: Path,
-    preferred_gb: int = 50,
-    minimum_gb: int = 16,
+    preferred_gb: int = 24,
+    minimum_gb: int = 12,
     reserve_gb: int = 10,
+    high_capacity_gb: int = 50,
 ) -> dict:
     probe = path.expanduser()
     while not probe.exists() and probe != probe.parent:
@@ -114,12 +116,12 @@ def check_storage(
     usage = shutil.disk_usage(probe)
     free_gb = usage.free / (1024**3)
     usable_gb = max(0, int(free_gb - reserve_gb))
-    target_gb = preferred_gb if usable_gb >= preferred_gb else usable_gb
+    target_gb = preferred_gb if usable_gb >= preferred_gb else minimum_gb if usable_gb >= minimum_gb else usable_gb
     ok = target_gb >= minimum_gb
-    if target_gb >= preferred_gb:
-        plan = "preferred"
+    if target_gb == preferred_gb:
+        plan = "default"
     elif ok:
-        plan = "fallback"
+        plan = "minimum"
     else:
         plan = "insufficient"
     return {
@@ -127,11 +129,58 @@ def check_storage(
         "preferredGb": preferred_gb,
         "minimumGb": minimum_gb,
         "reserveGb": reserve_gb,
+        "highCapacityGb": high_capacity_gb,
         "freeGb": round(free_gb, 1),
         "usableGb": usable_gb,
         "recommendedEmulatorGb": target_gb if ok else None,
+        "highCapacityAvailable": usable_gb >= high_capacity_gb,
         "plan": plan,
         "ok": ok,
+    }
+
+
+def check_memory(minimum_gb: int = 8, recommended_gb: int = 16) -> dict:
+    total_gb = None
+    note = ""
+    code, stdout, stderr = run_command(["sysctl", "-n", "hw.memsize"], timeout=5)
+    if code == 0 and stdout.strip().isdigit():
+        total_gb = int(stdout.strip()) / (1024**3)
+    else:
+        try:
+            pages = os.sysconf("SC_PHYS_PAGES")
+            page_size = os.sysconf("SC_PAGE_SIZE")
+            total_gb = pages * page_size / (1024**3)
+        except (AttributeError, OSError, ValueError):
+            note = stderr or "unable to determine physical memory"
+
+    if total_gb is None:
+        return {
+            "available": False,
+            "totalGb": None,
+            "minimumGb": minimum_gb,
+            "recommendedGb": recommended_gb,
+            "plan": "unknown",
+            "ok": False,
+            "note": note,
+        }
+
+    if total_gb >= recommended_gb:
+        plan = "recommended"
+        ok = True
+    elif total_gb >= minimum_gb:
+        plan = "low_memory"
+        ok = True
+    else:
+        plan = "insufficient"
+        ok = False
+    return {
+        "available": True,
+        "totalGb": round(total_gb, 1),
+        "minimumGb": minimum_gb,
+        "recommendedGb": recommended_gb,
+        "plan": plan,
+        "ok": ok,
+        "note": note,
     }
 
 
@@ -160,6 +209,7 @@ def main() -> int:
         "emulator": check_emulator_avds(),
         "stateDir": check_state_dir(state_dir),
         "storage": check_storage(state_dir),
+        "memory": check_memory(),
         "safeToCapture": False,
         "nextSteps": [],
     }
@@ -176,9 +226,18 @@ def main() -> int:
         report["nextSteps"].append(
             f"Free more disk space before provisioning the Android research emulator; current free space is {report['storage']['freeGb']}GB at {report['storage']['path']}, minimum emulator size is {report['storage']['minimumGb']}GB plus {report['storage']['reserveGb']}GB reserve."
         )
-    elif report["storage"]["plan"] == "fallback":
+    elif report["storage"]["plan"] == "minimum":
         report["nextSteps"].append(
-            f"Use a smaller Android research emulator sized to this machine: {report['storage']['recommendedEmulatorGb']}GB instead of the preferred {report['storage']['preferredGb']}GB."
+            f"Use the minimum Android research emulator size for this machine: {report['storage']['recommendedEmulatorGb']}GB instead of the default {report['storage']['preferredGb']}GB."
+        )
+
+    if not report["memory"]["ok"]:
+        report["nextSteps"].append(
+            f"Do not start a research emulator on this machine yet; physical memory is {report['memory']['totalGb'] or 'unknown'}GB, minimum is {report['memory']['minimumGb']}GB and recommended is {report['memory']['recommendedGb']}GB."
+        )
+    elif report["memory"]["plan"] == "low_memory":
+        report["nextSteps"].append(
+            f"Physical memory is {report['memory']['totalGb']}GB. Use the smallest emulator size, avoid parallel heavy apps, and ask before starting the emulator."
         )
 
     if not report["adb"]["devices"]:
@@ -197,7 +256,7 @@ def main() -> int:
             )
         else:
             report["nextSteps"].append(
-                "Provision Android Studio / Android Emulator, then create and start the selected country Google Play AVD."
+                "Provision Android Studio / Android Emulator, then run provision_country_avd.py --dry-run and ask for explicit approval before creating or starting the selected-country Google Play AVD."
             )
         report["nextSteps"].append("After the emulator starts, rerun adb devices -l and doctor.py.")
 
@@ -208,6 +267,7 @@ def main() -> int:
         country["valid"]
         and not missing
         and report["storage"]["ok"]
+        and report["memory"]["ok"]
         and bool(report["adb"]["devices"])
     )
 
@@ -232,8 +292,15 @@ def main() -> int:
         storage = report["storage"]
         print(
             f"- storage free: {storage['freeGb']}GB at {storage['path']} "
-            f"(preferred emulator {storage['preferredGb']}GB, "
-            f"recommended {storage['recommendedEmulatorGb'] or 'none'}GB)"
+            f"(default emulator {storage['preferredGb']}GB, "
+            f"recommended {storage['recommendedEmulatorGb'] or 'none'}GB, "
+            f"50GB available: {'yes' if storage['highCapacityAvailable'] else 'no'})"
+        )
+        memory = report["memory"]
+        print(
+            f"- physical memory: {memory['totalGb'] or 'unknown'}GB "
+            f"(minimum {memory['minimumGb']}GB, recommended {memory['recommendedGb']}GB, "
+            f"plan {memory['plan']})"
         )
         emulator = report["emulator"]
         print(f"- emulator: {emulator['path'] or 'missing'}")

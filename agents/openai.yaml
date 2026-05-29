@@ -1,4 +1,4 @@
 interface:
   display_name: "Global UG Radar"
-  short_description: "Country-grade Android UG research"
-  default_prompt: "Use $global-ug-radar to verify us/br/jp/kr Android country state, run token-efficient current-app UG research when the target app is already open, provision/install apps when needed, summarize native evidence, and prepare Chinese Feishu 5-column outputs."
+  short_description: "Country-grade UG and incentive research"
+  default_prompt: "Use $global-ug-radar to verify us/br/jp/kr Android country state, run token-efficient current-app UG research, supplement incentive cases with region-verified Inspire materials when needed, deconstruct incentive mechanics, and prepare Chinese Feishu 5-column outputs."

@@ -15,8 +15,8 @@ Create one table per product. The table has exactly 5 columns:
 |---|---|---|---|---|
 | 产品介绍 | <≤80 字。必含：所属公司 / 地区、当前量级数据（下载量 / 榜单 / 关键转化指标）、一句话核心理念> |  |  |  |
 | 一句话介绍 | 玩法截图 | 目标 | 亮点分析 | 可借鉴点 |
-| <玩法 1> | <1-3 张截图> | <固定枚举 1 个> | <编号列表，最多 4 条> | <TikTok 落地建议> |
-| <玩法 2> | <1-3 张截图> | <固定枚举 1 个> | <编号列表，最多 4 条> | <TikTok 落地建议> |
+| <玩法 1> | <1-3 张截图> | <固定枚举 1 个> | <编号列表，最多 6 条> | <TikTok 激励场景落地建议> |
+| <玩法 2> | <1-3 张截图> | <固定枚举 1 个> | <编号列表，最多 6 条> | <TikTok 激励场景落地建议> |
 ```
 
 When writing directly into Feishu Docs, merge row 1 columns 2-5 for the product name, and merge row 2 columns 2-5 for the product introduction. If the local artifact is Markdown, keep the same 5-column shape and leave the unused cells blank.
@@ -48,7 +48,8 @@ Do not add or remove columns. Do not add `证据状态`, `变化判断`, `来源
 - If multiple screenshots explain one mechanic, keep them in the same row's `玩法截图` cell. If screenshots explain different mechanics, split them into separate gameplay rows.
 - Add state labels only when needed, and each label must be ≤4 Chinese characters, such as `解锁前`, `解锁中`, `解锁后`.
 - Screenshots must independently explain the mechanic without relying on text explanation.
-- Every reportable gameplay row must have a real Android app screenshot. If no screenshot exists, do not create a gameplay row; report the blocker outside the table only if the user needs operational status.
+- For `native_app_local` rows, every reportable gameplay row must have a real Android app screenshot. If no screenshot exists, do not create a native gameplay row; report the blocker outside the table only if the user needs operational status.
+- For user-approved `inspire` rows, screenshots may come from `inspire-research` only after the region gate passes. Keep the source status internal and still put the screenshot inside the correct `玩法截图` cell.
 
 ### 目标
 
@@ -61,24 +62,55 @@ Choose exactly one value from this enum:
 - 付费转化
 - 拉新裂变
 - 品牌建设
+- 投稿激励
+- 分享传播
 
 Do not invent goals. One gameplay row maps to one core goal only.
 
 ### 亮点分析
 
 - Use a numbered list: `1. 2. 3.`
-- Maximum 4 items.
-- Each item must be ≤60 Chinese characters.
+- Maximum 6 items.
+- Each item must be ≤70 Chinese characters.
 - Each item must include a concrete number or a mechanism name, such as `$0.05-$0.25`, `1000 Coins = $1`, `3 天 / 7 天阶梯`, `Daily Bonus Ladder`.
 - Bold the key term, such as `**阶梯式限时奖金**` or `**卡片横滑组件**`.
+- Start with the conclusion directly. Do not use `为什么...` as the bold lead-in.
+- Analyze the local incentive logic, not only the visible UI. Mention holiday, currency, share channel, social habit, object choice, or task cost when it explains the design.
 - Ban mystical descriptions, vague quantities, and value judgments, including `用户体验好`, `很多`, `大量`, `这很棒`.
 
 ### 可借鉴点
 
-- ≤50 Chinese characters.
+- ≤80 Chinese characters.
 - Use this sentence shape: `TikTok可考虑在[具体场景]中[具体动作],以[预期效果]`.
-- Must name a concrete TikTok landing scene, such as 提现门槛, Push 通知, 新手引导, 签到, 任务页, 复访入口.
+- Must name a concrete TikTok incentive landing scene, such as 邀请页, 分享链路, 任务页, 签到, 视频任务, 奖励中心, 提现门槛, Push 通知, 复访入口, 投稿入口.
+- Keep the takeaway about incentives. Do not write generic product/content advice.
 - If the mechanic does not fit TikTok, write `不建议直接照搬，原因:<≤30 字>`.
+
+## Region Gate for Inspire Materials
+
+Before using an Inspire screenshot, verify the requested country from at least one strong signal and no contradictory signal:
+
+- Strong signals: source region metadata, app listing region, local currency, campaign copy, local holiday context, local social/share channel, or region-specific legal/payment wording.
+- Brazil signals: `R$`, Brazilian Portuguese copy, Brazil campaign context, Brazil app metadata, or Brazil-local channels.
+- Reject as `region_mismatch`: `Rp`, Indonesian copy, Indonesian metadata, or any source region that conflicts with the requested country.
+- Mark as `region_unverified`: language-only evidence, cropped screenshots with no country signal, or copied campaign assets with unclear market.
+
+Do not fill a confirmed country row with `region_mismatch` or `region_unverified` material.
+
+## Incentive Activity Analysis Rules
+
+Use this thinking path for `亮点分析`:
+
+- First classify the incentive: 拉新裂变、促活留存、任务转化、投稿激励、分享传播、付费转化、用户分层、品牌建设.
+- Then explain the local context: why this country, holiday, currency, channel, relationship, object, or task fits the incentive.
+- Then break down the mechanism: threshold, countdown, reward split, progress bar, unlock step, custom content, share surface, or reminder loop.
+- Finally write the TikTok takeaway for an incentive scene, especially sharing, invite, check-in, task completion, reward claim, withdrawal, return visit, or posting.
+
+Preferred highlight style:
+
+- `**首邀低门槛**：R$299 拆成 R$100/R$100/R$99，先让用户完成第 1 邀`
+- `**定制化分享理由**：用户分享的是给妈妈的贺卡，不是冷冰冰的任务链接`
+- `**7 天短周期目标**：May 4-May 11 把签到、看视频、邀请压进一轮冲刺`
 
 ## Content Rules
 

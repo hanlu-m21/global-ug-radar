@@ -8,7 +8,8 @@
 - Sideloading a third-party APK without explicit user approval of the source and security risk, or without a run config that preauthorizes the approved source for a disposable research emulator.
 - Clearing app data or uninstalling an app unless the user explicitly approves it, or the run config marks the app/emulator as disposable and preauthorizes reset.
 - Any action that spends money, changes account balance, contacts real users, or changes account security state.
-- Silent large-disk provisioning. When creating a new research emulator, check available disk space first, tell the user the planned emulator size, prefer 50GB when possible, and fall back to a smaller size that fits the machine when 50GB is not practical.
+- Silent emulator provisioning. Installing the skill must never create, install, or start an emulator. Before creating or starting a research emulator, check disk and physical memory, show the planned storage size, and wait for explicit user approval.
+- Default 50GB provisioning. Use the smaller `doctor.py` recommendation by default, normally 24GB and never below 12GB. Use 50GB only when the user explicitly asks for high-capacity mode and the machine has enough disk and memory headroom.
 
 ## Human Intervention Required
 

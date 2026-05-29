@@ -16,7 +16,7 @@ When `doctor.py` or `adb devices` returns zero devices, do not conclude that the
 
 - First check whether Android Studio, Android Emulator, or another emulator already exists.
 - If an emulator exists, guide the user to start it from Android Studio Device Manager or with `emulator -list-avds` followed by `emulator -avd <name>`.
-- If no suitable emulator exists, provision a disposable Android research AVD automatically where possible before any app research. Use a Google Play system image. Check available disk space first: prefer 50GB local storage when possible, otherwise use the smaller storage size recommended by `doctor.py` so the emulator fits the user's computer. If installation needs a GUI step, license acceptance, admin password, or the machine lacks disk/network prerequisites, report the exact blocker and wait for the user.
+- If no suitable emulator exists, do not provision automatically. Run `doctor.py`, then run `provision_country_avd.py --dry-run` to show the plan. Use a Google Play system image and the smaller storage size recommended by `doctor.py` by default. Wait for explicit user approval before creating or starting the emulator. If installation needs a GUI step, license acceptance, admin password, or the machine lacks disk/memory/network prerequisites, report the exact blocker and wait for the user.
 - Rerun `adb devices -l` and `doctor.py` after the emulator is visible. Only proceed when a row in state `device` is present.
 - Do not pivot to public web as the main evidence source just because ADB is temporarily disconnected.
 

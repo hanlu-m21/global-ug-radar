@@ -20,6 +20,8 @@ GOALS = {
     "付费转化",
     "拉新裂变",
     "品牌建设",
+    "投稿激励",
+    "分享传播",
 }
 
 
@@ -105,13 +107,13 @@ def validate(data: dict[str, Any]) -> None:
             raise ValueError(f"row {index}: goal must be one of {sorted(GOALS)}")
         if not isinstance(highlights, list) or not highlights:
             raise ValueError(f"row {index}: highlights must be a non-empty list")
-        if len(highlights) > 4:
-            raise ValueError(f"row {index}: highlights must contain at most 4 items")
+        if len(highlights) > 6:
+            raise ValueError(f"row {index}: highlights must contain at most 6 items")
         for item in highlights:
-            if text_len(str(item)) > 60:
-                raise ValueError(f"row {index}: each highlight must be <= 60 characters")
-        if text_len(takeaway) > 50:
-            raise ValueError(f"row {index}: takeaway must be <= 50 characters")
+            if text_len(str(item)) > 70:
+                raise ValueError(f"row {index}: each highlight must be <= 70 characters")
+        if text_len(takeaway) > 80:
+            raise ValueError(f"row {index}: takeaway must be <= 80 characters")
 
 
 def numbered(items: list[Any]) -> list[str]:

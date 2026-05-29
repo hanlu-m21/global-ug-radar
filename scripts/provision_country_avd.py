@@ -169,6 +169,42 @@ def wait_for_boot(timeout_seconds: int) -> dict:
     return {"booted": False, "error": "boot timeout"}
 
 
+def check_memory(minimum_gb: int = 8, recommended_gb: int = 16) -> dict:
+    code, stdout, stderr = run_command(["sysctl", "-n", "hw.memsize"], timeout=5)
+    total_gb = None
+    note = ""
+    if code == 0 and stdout.strip().isdigit():
+        total_gb = int(stdout.strip()) / (1024**3)
+    else:
+        note = stderr or "unable to determine physical memory"
+    if total_gb is None:
+        return {
+            "totalGb": None,
+            "minimumGb": minimum_gb,
+            "recommendedGb": recommended_gb,
+            "plan": "unknown",
+            "ok": False,
+            "note": note,
+        }
+    if total_gb >= recommended_gb:
+        plan = "recommended"
+        ok = True
+    elif total_gb >= minimum_gb:
+        plan = "low_memory"
+        ok = True
+    else:
+        plan = "insufficient"
+        ok = False
+    return {
+        "totalGb": round(total_gb, 1),
+        "minimumGb": minimum_gb,
+        "recommendedGb": recommended_gb,
+        "plan": plan,
+        "ok": ok,
+        "note": note,
+    }
+
+
 def start_emulator(avd_name: str, icc_profile: Path | None, dry_run: bool) -> dict:
     cmd = [
         "emulator",
@@ -207,10 +243,11 @@ def main() -> int:
     parser.add_argument("--country", required=True, choices=["us", "br", "jp", "kr"])
     parser.add_argument("--countries-config", default=str(SKILL_DIR / "config" / "countries.json"))
     parser.add_argument("--avd-name")
-    parser.add_argument("--storage-gb", type=int, default=50)
+    parser.add_argument("--storage-gb", type=int, default=24)
     parser.add_argument("--system-image-api", default=DEFAULT_SYSTEM_IMAGE_API)
     parser.add_argument("--device", default=DEFAULT_DEVICE)
     parser.add_argument("--start", action="store_true", help="Start the AVD after provisioning and open Android language settings.")
+    parser.add_argument("--confirm-resource-use", action="store_true", help="Required for real AVD creation, config writes, or emulator start.")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--output")
     args = parser.parse_args()
@@ -224,29 +261,48 @@ def main() -> int:
 
     missing_commands = [name for name in ["avdmanager", "emulator", "adb"] if not command_path(name)]
     existing_avds = list_avds()
+    memory_result = check_memory()
+    resource_blockers = []
+    if not args.dry_run and not args.confirm_resource_use:
+        resource_blockers.append("resource_confirmation_required")
+    if not args.dry_run and not memory_result["ok"]:
+        resource_blockers.append("memory_insufficient")
+    if args.storage_gb < 12:
+        resource_blockers.append("storage_too_small")
+    resource_blocked = bool(resource_blockers)
+
     created = None
     if avd_name not in existing_avds:
-        created = create_avd(avd_name, package, args.device, args.dry_run)
+        if resource_blocked and not args.dry_run:
+            created = {"skipped": True, "reason": ",".join(resource_blockers)}
+        else:
+            created = create_avd(avd_name, package, args.device, args.dry_run)
 
-    config_result = update_config_ini(selected_avd_dir / "config.ini", args.storage_gb, args.dry_run)
+    if resource_blocked and not args.dry_run:
+        config_result = {"path": str(selected_avd_dir / "config.ini"), "skipped": True, "reason": ",".join(resource_blockers)}
+    else:
+        config_result = update_config_ini(selected_avd_dir / "config.ini", args.storage_gb, args.dry_run)
 
     icc_template = find_icc_template(state_dir, selected_avd_dir)
     icc_profile_path = state_dir / "profiles" / args.country / f"iccprofile_{args.country}.xml"
     icc_result = None
     if icc_template:
-        icc_result = write_country_icc(icc_template, icc_profile_path, profile.get("simProfile", {}), args.dry_run)
+        if resource_blocked and not args.dry_run:
+            icc_result = {"path": str(icc_profile_path), "skipped": True, "reason": ",".join(resource_blockers)}
+        else:
+            icc_result = write_country_icc(icc_template, icc_profile_path, profile.get("simProfile", {}), args.dry_run)
 
     start_result = None
     boot_result = None
     runtime_result = None
-    if args.start and not missing_commands:
+    if args.start and not missing_commands and not resource_blocked:
         start_result = start_emulator(avd_name, icc_profile_path if icc_template else None, args.dry_run)
         if not args.dry_run:
             boot_result = wait_for_boot(180)
             if boot_result.get("booted"):
                 runtime_result = apply_runtime_profile(profile, args.dry_run)
 
-    blockers = []
+    blockers = list(resource_blockers)
     if missing_commands:
         blockers.append("android_tools_missing")
     if created and created.get("returnCode") not in {None, 0}:
@@ -280,6 +336,13 @@ def main() -> int:
             "create": created,
             "config": config_result,
         },
+        "resourcePlan": {
+            "storageGb": args.storage_gb,
+            "storageMode": "high_capacity" if args.storage_gb >= 50 else "default",
+            "memory": memory_result,
+            "requiresConfirmation": not args.dry_run,
+            "confirmed": args.confirm_resource_use,
+        },
         "iccProfile": icc_result or {"path": str(icc_profile_path), "template": None},
         "start": start_result,
         "boot": boot_result,
@@ -290,18 +353,30 @@ def main() -> int:
 
     if "android_tools_missing" in blockers:
         result["nextSteps"].append(f"Expose required Android commands in PATH: {', '.join(missing_commands)}.")
+    if "resource_confirmation_required" in blockers:
+        result["nextSteps"].append("Review this plan with the user, then rerun with --confirm-resource-use only after explicit approval.")
+    if "memory_insufficient" in blockers:
+        result["nextSteps"].append("Do not start the emulator on this machine; use an existing device/emulator or a higher-memory host.")
+    if "storage_too_small" in blockers:
+        result["nextSteps"].append("Use at least 12GB storage for the research emulator.")
     if "avd_create_failed" in blockers:
         result["nextSteps"].append(f"Install the Google Play system image first: sdkmanager '{package}', then rerun this script.")
     if "icc_template_missing" in blockers:
         result["nextSteps"].append("Start any Android emulator once so modem_simulator/iccprofile_for_sim0.xml exists, or place a base profile at ~/.global-ug-radar/profiles/_template/iccprofile_for_sim0.xml.")
-    if args.start:
+    if args.storage_gb >= 50:
+        result["nextSteps"].append("50GB is high-capacity mode; use it only when the user explicitly requested it.")
+    if args.start and not resource_blocked and not missing_commands:
         result["nextSteps"].append("In Android Language settings, add/select the profile language and move it to the first position; verify with: adb shell am get-config.")
-    else:
+    elif args.start:
+        result["nextSteps"].append("The emulator was not started because provisioning is blocked; resolve blockers before using --start.")
+    elif not blockers:
         launch = ["emulator", "-avd", avd_name, "-no-snapshot-load", "-no-snapshot-save"]
         if icc_template:
             launch.extend(["-icc-profile", str(icc_profile_path)])
         result["nextSteps"].append("Start the emulator with: " + " ".join(launch))
         result["nextSteps"].append("After boot, apply timezone/geolocation and open Android Language settings; then run verify_country_env.py.")
+    else:
+        result["nextSteps"].append("Do not start the emulator until blockers are resolved and resource use is confirmed.")
 
     output = Path(args.output).expanduser() if args.output else state_dir / "logs" / f"provision-avd-{args.country}.json"
     if not args.dry_run:
